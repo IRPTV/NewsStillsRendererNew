@@ -18,9 +18,8 @@ namespace StillsRenderer
         {
             InitializeComponent();
             label1.Text = ConfigurationSettings.AppSettings["StillsKind"].ToString().Trim();
-           
-        }
 
+        }
         private void button1_Click(object sender, EventArgs e)
         {
             button1.ForeColor = Color.White;
@@ -55,9 +54,7 @@ namespace StillsRenderer
                 Renderer();
                 richTextBox1.Text = "Last Render:" + DateTime.Now.ToString();
             }
-
-            
-
+            timer1.Enabled = true;
         }
         protected bool CopyFiles()
         {
@@ -67,26 +64,21 @@ namespace StillsRenderer
                 string[] Directories = Directory.GetDirectories(ConfigurationSettings.AppSettings["InputFolder"].ToString().Trim());
                 if (Directories.Length > 0)
                 {
-                    string[] ImageFilesList = Directory.GetFiles(Directories[0] + "\\IMAGES\\");
+                    string[] ImageFilesList = Directory.GetFiles(Directories[0] + "\\");
+                    foreach (string Image in ImageFilesList)
                     {
-                        foreach (string Image in ImageFilesList)
+                        if (Image.Contains(".jpg"))
                         {
-                            File.Copy(Image,
-                                ConfigurationSettings.AppSettings["PicturesPath"].ToString().Trim() + "\\" + Path.GetFileName(Image), true);
-                            richTextBox1.Text += (Image) + " *COPIED* \n";
+                            File.Copy(Image, ConfigurationSettings.AppSettings["PicturesPath"].ToString().Trim() + "\\" + Path.GetFileName(Image), true);
+                            richTextBox1.Text += Path.GetFileName(Image) + " *COPIED* \n";
                             richTextBox1.SelectionStart = richTextBox1.Text.Length;
                             richTextBox1.ScrollToCaret();
                             Application.DoEvents();
                         }
-                    }
-
-                    string[] TitleFilesList = Directory.GetFiles(Directories[0] + "\\TITLES\\");
-                    {
-                        foreach (string Image in TitleFilesList)
+                        if (Image.Contains(".xml"))
                         {
-                            File.Copy(Image,
-                                ConfigurationSettings.AppSettings["TitleImagePath"].ToString().Trim() + "\\" + Path.GetFileName(Image), true);
-                            richTextBox1.Text += (Image) + " *COPIED* \n";
+                            File.Copy(Image, ConfigurationSettings.AppSettings["XmlPath"].ToString().Trim(), true);
+                            richTextBox1.Text += Path.GetFileName(Image) + " *COPIED* \n";
                             richTextBox1.SelectionStart = richTextBox1.Text.Length;
                             richTextBox1.ScrollToCaret();
                             Application.DoEvents();
@@ -97,24 +89,20 @@ namespace StillsRenderer
                     richTextBox1.SelectionStart = richTextBox1.Text.Length;
                     richTextBox1.ScrollToCaret();
                     Application.DoEvents();
-                    // timer1.Enabled = true;
                     return true;
-
                 }
                 else
                 {
-                    timer1.Enabled = true;
                     return false;
                 }
             }
-            catch (Exception EXP )
+            catch (Exception EXP)
             {
                 richTextBox1.Text += EXP.Message;
                 richTextBox1.SelectionStart = richTextBox1.Text.Length;
                 richTextBox1.ScrollToCaret();
                 return false;
             }
-           
         }
         protected void Renderer()
         {
@@ -129,7 +117,6 @@ namespace StillsRenderer
             {
                 Dir.Create();
             }
-
 
             proc.StartInfo.Arguments = " -project " + "\"" + ConfigurationSettings.AppSettings["AeProjectFile"].ToString().Trim() + "\"" + "   -comp   \"" + ConfigurationSettings.AppSettings["Composition"].ToString().Trim() + "\" -output " + "\"" + ConfigurationSettings.AppSettings["OutputPath"].ToString().Trim() + ConfigurationSettings.AppSettings["OutPutFileName"].ToString().Trim() + "_" + DateTimeStr + ".mp4" + "\"";
             proc.StartInfo.RedirectStandardError = true;
@@ -156,9 +143,6 @@ namespace StillsRenderer
             }
             proc.Close();
 
-
-
-
             try
             {
                 string StaticDestFileName = ConfigurationSettings.AppSettings["ScheduleDestFileName"].ToString().Trim();
@@ -177,28 +161,19 @@ namespace StillsRenderer
                 Application.DoEvents();
             }
 
-
-
-
-
-
-
             timer1.Enabled = true;
-            this.Text = "Renderer v1.2 20140130 " + DateTime.Now.ToString();
             button1.ForeColor = Color.White;
             button1.Text = "Start";
             button1.BackColor = Color.Navy;
         }
-
         private void timer1_Tick(object sender, EventArgs e)
         {
             button1_Click(new object(), new EventArgs());
         }
-
         private void Form1_Load(object sender, EventArgs e)
         {
             timer1.Enabled = true;
-            timer1.Interval = int.Parse(ConfigurationSettings.AppSettings["RenderIntervalSec"].ToString().Trim())*1000;
+            timer1.Interval = int.Parse(ConfigurationSettings.AppSettings["RenderIntervalSec"].ToString().Trim()) * 1000;
         }
     }
 }
